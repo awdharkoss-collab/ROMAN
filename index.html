@@ -5,15 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yarım Kalan Akort</title>
 <style>
+  * { box-sizing: border-box; }
   body { background: #f4efe6; color: #2c2623; font-family: Georgia, serif; padding: 20px; display: flex; justify-content: center; margin: 0; }
-  .kitap { max-width: 750px; width: 100%; background: #fcf9f2; padding: 45px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); border-left: 10px solid #7a4938; margin-top: 20px; }
-  h1 { text-align: center; color: #7a4938; font-size: 2.5rem; margin-bottom: 5px; }
-  .alt { text-align: center; font-style: italic; color: #666; margin-bottom: 35px; }
-  h2 { color: #7a4938; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-top: 20px; }
+  .kitap { max-width: 760px; width: 100%; background: #fcf9f2; padding: 45px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); border-left: 10px solid #7a4938; margin-top: 15px; }
+  h1 { text-align: center; color: #7a4938; font-size: 2.3rem; margin-bottom: 5px; }
+  .alt { text-align: center; font-style: italic; color: #666; margin-bottom: 25px; }
+  .ust-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0d6c5; gap: 10px; }
+  select { padding: 8px 12px; font-family: Georgia, serif; font-size: 15px; border: 1px solid #cbbba0; border-radius: 5px; background: #fff; color: #2c2623; max-width: 70%; }
+  h2 { color: #7a4938; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-top: 10px; }
   p { line-height: 1.85; font-size: 18px; text-indent: 25px; text-align: justify; margin-bottom: 16px; }
   .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; padding-top: 15px; border-top: 1px solid #ddd; }
   button { background: #7a4938; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; }
   button:disabled { background: #ccc; cursor: not-allowed; }
+  .bilgi { font-size: 14px; color: #777; font-style: italic; }
 </style>
 </head>
 <body>
@@ -21,115 +25,50 @@
 <div class="kitap">
   <h1>Yarım Kalan Akort</h1>
   <div class="alt">Bir Büyükada Hikâyesi</div>
+  
+  <div class="ust-bar">
+    <select id="bolumSec" onchange="bolumeGit(this.value)"></select>
+    <span class="bilgi" id="sayfaBilgi"></span>
+  </div>
+
   <div id="icerik"></div>
+
   <div class="nav">
-    <button id="geri" onclick="degistir(-1)">← Önceki Bölüm</button>
+    <button id="geri" onclick="degistir(-1)">← Önceki Sayfa</button>
     <span id="sayac"></span>
-    <button id="ileri" onclick="degistir(1)">Sonraki Bölüm →</button>
+    <button id="ileri" onclick="degistir(1)">Sonraki Sayfa →</button>
   </div>
 </div>
 
 <script>
-const sayfalar = [
+const ROMAN_BOLUMLERI = [
   {
     baslik: "Bölüm 1: Yağmurun Getirdiği Yabancı",
     metin: `
-      <p>Kasım ayı Büyükada’ya bir misafir gibi değil, evin eski ve huysuz sahibi gibi çökmüştü. İskeleden yukarı kıvrılan Arnavut kaldırımlı sokaklar, sabahın erken saatlerinden beri yağan ince ama inatçı yağmurla koyu bir kurşun rengine bürünmüştü.</p>
-      <p>Defne, sahaf dükkânının buğulanmış vitrin camının ardında, ceviz ağacından yapılma eski tezgâhın üzerine eğilmişti. Sağ eliyle ince uçlu fırçayı tutkal kabına daldırırken, sol elini her zamanki gibi kazağının uzun yeninin içine saklamıştı.</p>
-      <p>Dükkânın kapısındaki pirinç çıngırak tok bir sesle çaldı. İçeriye uzun boylu, omuzları yağmurdan koyulaşmış kaşe kabanlı bir adam girdi. Gözlerinin altında uykusuz gecelerin bıraktığı derin gölgeler vardı.</p>
-      <p>"Hoş geldiniz," dedi Defne, alçak ve dingin bir sesle. "Sadece yağmurdan kaçmak için girdiyseniz bile sobanın yanına geçebilirsiniz."</p>
-      <p>Kerem ıslak saçlarını geriye iterken duraksadı. "Bazen insan sadece sığınacak bir sessizlik arıyor," diye fısıldadı. Az sonra, Çankaya sırtlarındaki eski Hacıyan Köşkü'nün restorasyonu için adaya geldiğini söylediğinde, Defne'nin elindeki keten bez havada asılı kaldı. O köşk, Defne'nin çocukluğunda müziğe âşık olduğu yerdi.</p>
+      <p>Kasım ayı Büyükada’ya bir misafir gibi değil, evin eski ve huysuz sahibi gibi çökmüştü. İskeleden yukarı kıvrılan Arnavut kaldırımlı sokaklar, sabahın erken saatlerinden beri yağan ince ama inatçı yağmurla koyu bir kurşun rengine bürünmüştü. Deniz kokusuna karışan ıslak çam ve yanmış odun kokusu, adanın yazlık neşesini çoktan kovmuş, geriye yalnızca rüzgârın ahşap panjurlara vuran uğultusunu ve martıların kesik çığlıklarını bırakmıştı.</p>
+      <p>Defne, sahaf dükkânının buğulanmış vitrin camının ardında, ceviz ağacından yapılma eski tezgâhın üzerine eğilmişti. Önünde sırtı dağılmış, sayfaları yılların neminden dalgalanmış on dokuzuncu yüzyıldan kalma bir şiir kitabı duruyordu. Sağ eliyle ince uçlu samur fırçayı tutkal kabına daldırırken, sol elini her zamanki gibi üzerine geçirdiği kalın yün kazağın uzun yeninin içine saklamıştı. Parmaklarının ucundaki o tanıdık uyuşukluk, hava soğuduğunda daha da belirginleşiyor, ona bir daha asla basamayacağı notaların ağırlığını hatırlatıyordu.</p>
+      <p>Bir zamanlar konservatuvarın en parlak viyolonsel öğrencilerinden biriydi Defne. Sahneye çıktığında gözlerini kapatır, yay tellere değdiği an dünyayla arasındaki bütün mesafeyi eritirdi. Ta ki üç yıl önce, yağmurlu bir Ekim akşamında geçirdiği o trafik kazasına kadar. Aracın sol kapısından aldığı darbe, sol omzundan parmak uçlarına kadar uzanan sinir ağlarını geri dönülmez biçimde zedelemişti. Doktorlar "mucize" demişti hayatta kalmasına; ama Defne için hayatta kalmak, sesi elinden alınmış bir şarkıcı gibi yaşamaya devam etmekten ibaretti.</p>
+      <p>Dükkânın kapısındaki pirinç çıngırak, rüzgârla karışık tok bir sesle çaldı. İçeriye soğuk havayla birlikte uzun boylu, omuzları yağmurdan koyulaşmış kaşe kabanlı bir adam girdi. Elindeki ıslak şemsiyeyi kapının yanındaki bakır kovaya bırakırken etrafına bakındı. Yüz hatları keskin ama yorgundu; gözlerinin altında uykusuz gecelerin bıraktığı o derin, morumsu gölge duruyordu.</p>
+      <p>Defne başını kitabın üzerinden kaldırmadan, "Hoş geldiniz," dedi. Sesi, dükkânın içindeki eski duvar saatlerinin tik taklarına karışan alçak, dingin bir tınıdaydı. "Sadece yağmurdan kaçmak için girdiyseniz bile sobanın yanına geçebilirsiniz. Çayımız yeni demlendi."</p>
+      <p>Kerem ıslak saçlarını elinin tersiyle geriye iterken duraksadı. Beklediği şey sıradan bir esnaf nezaketi değildi; karşısındaki kadının sesinde, kendi içindeki sessizliğe benzeyen bir tür kabulleniş vardı. Rafların arasındaki dar koridordan geçip döküm sobanın yanındaki hasır tabureye ilişti. Ellerini sobanın sıcaklığına uzatırken gözleri tezgâha kaydı.</p>
+      <p>Kadının sağ eli bir cerrah titizliğiyle eski kâğıtları onarırken, sol eli masanın kenarında, kıpırtısız bir gölge gibi duruyordu. Kerem, mesleği gereği insanlardan çok yapılardaki kırıkları, çatlakları ve gizlenen kusurları fark etmeye alışıktı. O an, karşısındaki kadının da tıpkı restore etmek için adaya geldiği o eski ahşap köşk gibi, dışarıdan ayakta duran ama içten içe sessizce onarılmayı bekleyen bir yanı olduğunu sezdi.</p>
+      <p>"Bazen insan sadece sığınacak bir sessizlik arıyor," dedi Kerem, bakışlarını sobanın içindeki korlardan ayırmadan. "İstanbul’un gürültüsü insanın kendi sesini bile duymasına izin vermiyor."</p>
+      <p>Defne fırçayı tutkal kabının kenarına bıraktı, ilk kez başını kaldırıp adama baktı. Ela gözlerinde ne merak ne de yargı vardı; yalnızca yağmurlu bir ikindinin durgunluğu... "O zaman doğru adaya gelmişsiniz. Kışın burada rüzgârdan ve martılardan başka kimse konuşmaz. Yalnızlığa alışık değilseniz zorlanırsınız."</p>
+      <p>Kerem hafifçe gülümsedi ama bu gülümseme gözlerine ulaşmadı. "Yalnızlık benim uzun zamandır en sadık ev arkadaşım."</p>
+      <p>Arka odadan gelen ağır ayak sesleri sessizliği böldü. Salih Usta, elinde iki ince belli çay bardağı ve yakasında küçük bir büyüteçle içeri girdi. Yılların saat tamirciliği omuzlarını hafifçe öne eğmiş, ama bakışlarındaki keskinliği hiç azaltmamıştı. Kerem’i görünce çatık kaşlarının altındaki gözleri yumuşadı.</p>
+      <p>"Evlat, sırılsıklam olmuşsun," dedi Salih Usta, bardaklardan birini Kerem’in yanındaki küçük sehpaya bırakırken. "Yabancısın buralara. Yazlıkçılar çoktan döndü, bu mevsimde adaya ya kaçanlar gelir ya da bir şey arayanlar. Sen hangisisin?"</p>
+      <p>Kerem sıcak bardağın etrafına parmaklarını doladı. Yıllar sonra ilk kez avuçlarının içine yayılan bu basit sıcaklığın kalbine dokunduğunu hissetti. "Belki ikisi de," dedi alçak bir sesle. "Ben mimarım. Yukarıda, Çankaya sırtlarındaki eski Hacıyan Köşkü’nün restorasyonu için geldim. Kış boyu buradayım."</p>
+      <p>Tezgâhın arkasında bir anlık mutlak bir sessizlik oldu. Defne’nin sağ elindeki keten bez havada asılı kaldı. Sol elinin parmakları, kazağının yününün içinde istemsizce kasıldı. Çankaya sırtlarındaki o köşk... Çocukluğunda bahçe duvarının dibine oturup içeriden yükselen piyano ve viyolonsel seslerini dinlediği, müziğe âşık olduğu o unutulmuş konak.</p>
+      <p>Kerem, kadının yüzünden geçen o ani gölgeyi fark etti ama sormadı. Bazı hikâyelerin anlatılmak için zamana, bazı yaraların ise dokunulmadan önce yalnızca anlaşılmaya ihtiyacı olduğunu biliyordu. Dışarıda yağmur hızlanırken, dükkândaki eski saatlerden biri tok bir sesle beşi vurdu; sanki ikisinin de durmuş olan zamanı o an yeniden işlemeye başlamıştı.</p>
     `
-  }
-];
-
-let indeks = 0;
-function goster() {
-  document.getElementById("icerik").innerHTML = "<h2>" + sayfalar[indeks].baslik + "</h2>" + sayfalar[indeks].metin;
-  document.getElementById("sayac").innerText = (indeks + 1) + " / " + sayfalar.length;
-  document.getElementById("geri").disabled = (indeks === 0);
-  document.getElementById("ileri").disabled = (indeks === sayfalar.length - 1);
-}
-function degistir(yon) {
-  indeks += yon;
-  goster();
-}
-goster();
-</script>
-
-</body>
-</html>
-window.ROMAN_BOLUMLERI.push({
-  baslik: "Bölüm 3: Sessizliğin Dili",
-  metin: `
-    <p>Ertesi sabah Büyükada’nın üzerine çöken sis, denizi ve gökyüzünü tek bir gri tuvale dönüştürmüştü. İskele meydanındaki çay ocaklarından yükselen duman bile rüzgârla dağılmıyor, ağır ağır nemli havaya karışıyordu. Defne, sırt çantasına onarım fırçalarını, keten bezlerini, büyütecini ve Salih Usta’nın sabah erkenden demlediği ıhlamur dolu termosu yerleştirip Çankaya yokuşuna doğru yürümeye başladı.</p>
-
-    <p>Yokuş yukarı tırmandıkça adanın gürültüsü geride kalıyor, yerini yalnızca ayaklarının altında ezilen ıslak çam iğnelerinin hışırtısı ve uzaktan gelen bir vapurun boğuk düdüğü alıyordu. Hacıyan Köşkü’nün paslı demir kapısına vardığında nefes nefese kalmıştı. Kapı aralıktı. Bahçeye adım attığında, yıllardır bakımsız kalmış ortanca çalılarının ve yabani sarmaşıkların arasından süzülen serin hava yüzüne çarptı.</p>
-
-    <p>Köşkün geniş ahşap verandasında Kerem’i gördü. Üzerinde kalın, koyu lacivert bir balıkçı yaka kazak vardı; elindeki büyük rulo çizim kâğıtlarını bahçe masasının üzerine yaymış, kaşlarını çatarak bir şeyler ölçüyordu. Sabahın bu saatinde bile yüzünde hiç uyumamış bir adamın yorgunluğu okunuyordu. Saçları rüzgârdan dağılmış, şakaklarına düşen birkaç beyaz tel gri sabah ışığında daha da belirginleşmişti.</p>
-
-    <p>"Günaydın," dedi Defne, verandanın ahşap basamaklarını çıkarken.</p>
-
-    <p>Kerem başını çizimlerden kaldırdı. Defne’yi gördüğünde yüzündeki o gergin, hesapçı ifade bir anlığına yumuşadı. Gözlerinin kenarında beliren ince çizgiler, onun aslında ne kadar zamandır gülümsemeyi unuttuğunu ele veriyordu. "Erkencisiniz," dedi, masanın üzerindeki kâğıtları kenara toplarken. "Ben de tam sobayı yakmaya çalışıyordum. İçerisi buz gibi, bu ev yıllardır ısıtılmamış."</p>
-
-    <p>Birlikte üst kattaki büyük kütüphane odasına çıktılar. Kerem odanın köşesindeki eski döküm sobaya kuru meşe odunları yerleştirip tutuştururken, Defne yerlere saçılmış ciltli kitapların ve sararmış nota defterlerinin arasına diz çöktü. Odada çıtırdayan ateşin sesiyle dışarıda camlara vuran rüzgârın uğultusu birbirine karışıyordu.</p>
-
-    <p>Defne, eline aldığı ilk deri ciltli kitabın kapağını büyük bir özenle açtı. Sayfaların kenarları rutubetten yeşilimsi bir küf tabakasıyla kaplanmıştı ama içindeki mürekkep hâlâ canlıydı. Sol elini kazağının kolunun içinde sabit tutarak, sağ eliyle ince uçlu fırçayı yavaşça sayfaların üzerinde gezdirmeye başladı.</p>
-
-    <p>Kerem, sırtını pencere pervazına yaslamış, elleri cebinde onu izliyordu. Bu sessiz izleme Defne’yi rahatsız etmiyordu; aksine, Kerem’in varlığı odadaki o ağır, terk edilmişlik hissini dağıtıyordu. Sanki ikisi de konuşmadan anlaşabilen, kelimelerin yetersiz kaldığı yerlerde suskunluğa sığınan iki eski dost gibiydiler.</p>
-
-    <p>"Bu evde kim yaşardı?" diye sordu Kerem, sesini alçaltarak. Sanki yüksek sesle konuşursa odadaki eski hatıraları ürkütecekmiş gibi bir hali vardı.</p>
-
-    <p>Defne fırçayı elinden bırakmadan, bakışlarını sayfanın üzerindeki eski el yazısı notalara dikti. "Madam Clara," dedi fısıltıyla. "İstanbullu bir piyano ve viyolonsel eğitmeniydi. Ailesini yıllar önce kaybettikten sonra bu köşke kapanmış. Adadaki yetenekli ama imkânı olmayan çocuklara ücretsiz ders verirdi. Ben on yaşındayken her cumartesi sabahı bu kapının önüne gelirdim."</p>
-
-    <p>Kerem bir adım yaklaştı, odanın köşesindeki maun piyanoya baktı. "Senin öğretmenin miydi?"</p>
-
-    <p>Defne başını hafifçe salladı. Yutkunurken boğazında sert bir düğüm oluştu. "Bana ilk çellomu o hediye etmişti. 'Müzik insanın içindeki kırıkları sakladığı yer değil, onları dışarı çıkardığı sestir Defne,' derdi. O vefat ettikten sonra mirasçıları çıkmadı, köşk devlete kaldı ve yıllarca böyle çürümeye terk edildi."</p>
-
-    <p>Odaya derin bir sessizlik çöktü. Sobanın içindeki odunlardan biri çıtırdayarak ikiye bölündü. Kerem, Defne’nin sol kolunu neden hiç hareket ettirmediğini, kazağının yenini neden parmak uçlarına kadar çektiğini o an daha net anladı. Sorular sormak yerine, gidip yerdeki nemli nota defterlerinden bir kucak dolusu alıp Defne’nin yanındaki ahşap masanın üzerine bıraktı.</p>
-
-    <p>"O zaman bu odadaki her bir sayfayı kurtarmak sadece bir restorasyon işi değil," dedi Kerem, gözlerini Defne’nin ela gözlerine dikerek. "Bu, senin yarım kalan hikâyene bir vefa borcu. Ben ahşap rafları onaracağım, sen de içindeki müziği kurtaracaksın."</p>
-
-    <p>Defne ilk kez başını kaldırıp Kerem’e uzun uzun baktı. Yıllardır ilk kez biri onun geçmişine acıyarak değil, saygıyla yaklaşmıştı. Kalbinin etrafına ördüğü o kalın buz tabakasında, neredeyse duyulmayacak kadar ince bir çatlak sesi işitti. Öğleye kadar tek kelime etmeden yan yana çalıştılar; Kerem kırık rafların ölçülerini alırken, Defne sayfaların tozunu siliyor, ikisinin nefesi eski kâğıt ve sedir ağacı kokusuna karışıyordu.</p>
-
-    <p>Öğleden sonra yağmur yeniden başladığında, Kerem çantasından çıkardığı siyah kaplı çizim defterini masanın kenarına unuttu. Defne, kahve fincanlarını toplarken defterin rüzgârla açılan sayfasına gözü ilişti. Sayfada Hacıyan Köşkü’nün mimari çizimleri değil, karakalemle çizilmiş yarım bir beşik ve yanında pencereden dışarı bakan bir kadının silüeti vardı. Çizgiler o kadar sert ve öfkeli atılmıştı ki, kâğıt neredeyse yırtılmıştı. Defne defteri yavaşça kapattı; kendi yaralarının yanında, bu sessiz adamın da içinde taşıdığı devasa bir mezarlık olduğunu o an anladı.</p>
-  `
-});
-window.ROMAN_BOLUMLERI.push({
-  baslik: "Bölüm 4: Kırık Teller",
-  metin: `
-    <p>Köşkteki ortak çalışmalarının üzerinden bir hafta geçmişti. Kasım ayının son günleri adaya erken bir kış getirmiş, rüzgâr artık sadece yaprakları değil, insanların içine sakladığı bütün eski pişmanlıkları da savurmaya başlamıştı. Defne ve Kerem arasında, kimsenin adını koymadığı ama her sabah biraz daha derinleşen sessiz bir ritim oluşmuştu.</p>
-
-    <p>O akşamüstü Defne sahafa döndüğünde, dükkânın arka odasından gelen törpü ve zımpara sesleriyle karşılaştı. Salih Usta, çalışma masasının üzerine koyduğu yeşil örtünün başına geçmiş, yakasındaki büyüteci gözüne yerleştirmişti. Masanın ortasında ise yılların tozunu ve nemini üzerinde taşıyan, gövdesi çatlamış, telleri kopuk eski bir viyolonsel yatıyordu.</p>
-
-    <p>Defne kapı eşiğinde donakaldı. Göğüs kafesinin içinde bir şeylerin aniden sıkıştığını, nefesinin ciğerlerine yetmediğini hissetti. Üç yıldır hiçbir yaylı enstrümana bu kadar yaklaşmamıştı. Radyoda bir çello konçertosu çalsa kanalı değiştiriyor, vitrinlerde gördüğünde başını çeviriyordu. Şimdi ise o tanıdık, kıvrımlı ahşap gövde tam karşısında duruyordu.</p>
-
-    <p>"Salih Usta..." dedi Defne, sesi titreyerek. "Bunun burada ne işi var?"</p>
-
-    <p>Salih Usta başını kaldırmadan elindeki ince zımparayı enstrümanın yan kavisinde gezdirdi. "Geçen hafta köşkün bodrum katındaki rutubetli sandıktan çıkmış kızım. Kerem evlat bulmuş. 'Bunu çöpe atmaya kıyamadım, ustam belki bir çaresine bakar,' diye getirdi. Belli ki Madam Clara’nın eski öğrencilerinden birinin emaneti."</p>
-
-    <p>Defne’nin sol eli, kazağının yününün içinde şiddetle titremeye başladı. Kasları geriliyor, parmak uçlarından omzuna doğru keskin, yakıcı bir sızı yayılıyordu. Kazadan sonraki o ilk hastane günleri, fizik tedavi odalarındaki çaresiz gözyaşları, bir daha asla o tellere basamayacağını öğrendiği o karanlık gece bir sel gibi zihnine hücum etti.</p>
-
-    <p>"Götürün bunu buradan," dedi Defne, sesi beklediğinden daha sert ve kırık çıkmıştı. "Onarılsa bile kimse çalmayacak. Sadece yer kaplayacak."</p>
-
-    <p>Tam o sırada dükkânın ön kapısı açıldı ve Kerem içeri girdi. Elinde marangoz atölyesinden aldığı küçük ahşap bir kutu ve özel ağaç tutkalı vardı. Defne’nin bembeyaz olmuş yüzünü, duvara yaslanarak ayakta durmaya çalışan halini görünce adımları durdu. Yaptığı şeyin onu mutlu edeceğini sanmıştı; oysa farkında olmadan kadının en derin yarasına tuz basmıştı.</p>
-
-    <p>"Defne..." dedi Kerem, elindeki kutuyu yavaşça tezgâhın üzerine bırakarak. "Ben sadece... Köşkte çürümesine gönlüm elvermedi. Senin için anlamlı olabileceğini düşündüm."</p>
-
-    <p>Defne gözlerini Kerem’e çevirdi. İlk kez o dingin, mesafeli kabuğu tamamen parçalanmıştı. Gözlerinde biriken yaşlar kirpiklerinin ucunda titriyordu ama akmamak için direniyordu. "Benim için neyin anlamlı olduğunu nereden bilebilirsin ki Kerem?" diye fısıldadı acıyla. "Sen sadece kırık tahtaları görüyorsun! Onları yapıştırınca eski haline döneceğini sanıyorsun! Ama bazı şeyler kırıldığında bir daha asla ses vermez. Tıpkı benim gibi. Tıpkı senin o çizim defterine çizdiğin..."</p>
-
-    <p>Cümlesi yarıda kesildi. Dudaklarını ısırıp başını önüne eğdi. Fazla ileri gittiğini, bir başkasının gizli acısını ortaya döktüğünü fark etmişti.</p>
-
-    <p>Kerem’in yüzündeki kan çekildi. Bir anlığına odadaki hava buz kesti. Defne’nin defterdeki o çizimi gördüğünü anlamıştı. Gözlerini kapattı, derin bir nefes aldı. Öfkelenmek yerine, omuzları yavaşça çöktü; sanki yıllardır tek başına taşıdığı o ağır sırrın bir başkası tarafından bilinmesi, acısını hafifletmese de yalnızlığını sona erdirmişti.</p>
-
-    <p>"Haklısın," dedi Kerem, sesi boğuk ve derinden geliyordu. Masadaki viyolonsele baktı. "Ben de kırılan her şeyi onarabileceğimi sandım Defne. Oğlumuzu kaybettiğimizde, karımın gözlerindeki o boşluğu, evimizdeki o ölüm sessizliğini tamir edebileceğimi sandım. Ama edemedim. Sadece kaçtım. Bu adaya, bu yıkık binalara kaçtım."</p>
-
-    <p>Salih Usta sessizce yerinden kalkıp ikisini baş başa bırakarak ön dükkâna geçti. Arka odada yalnızca yağmurun camlara vuruşu ve iki yaralı insanın ağır nefesleri kaldı. Defne, başını kaldırıp Kerem’in gözlerindeki o saf, savunmasız kederi gördüğünde kendi öfkesinin eridiğini hissetti. İlk kez birbirlerinin maskelerinin ardındaki gerçek enkazı görmüşlerdi.</p>
-
-    <p>Defne yavaşça masaya yaklaştı. Sağ elini uzatıp viyolonselin soğuk, tozlu gövdesine dokundu. Parmaklarının ucunda hafif bir sızı hissetti ama elini çekmedi. "Ahşabı çok kurumuş," dedi titrek, alçak bir sesle. "Eğer nem dengesi ayarlanmazsa, telleri gerdiğimiz an gövdesi ortadan çatlar."</p>
-
-    <p>Kerem bir adım yanına geldi, onun hemen arkasında durdu. "O zaman acele etmeyiz," diye fısıldadı. "Ne kadar sürerse sürsün, sabırla bekleriz."</p>
-  `
-});
-<script src="bolum3.js"></script>
-<script src="bolum4.js"></script>
+  },
+  {
+    baslik: "Bölüm 2: Çatlak Duvarlar",
+    metin: `
+      <p>Ertesi sabah yağmur dinmiş, yerini Büyükada’nın tepelerini pamuk gibi saran yoğun bir sise bırakmıştı. Kerem, sabahın ilk ışıklarıyla birlikte Çankaya sırtlarındaki Hacıyan Köşkü’nün demir bahçe kapısının önündeydi. Paslanmış menteşeler itildiğinde çıkan o uzun gıcırtı, sanki yıllardır uyuyan bir devi uyandırmış gibiydi.</p>
+      <p>Üç katlı ahşap köşk, zamanın ve rutubetin insafına terk edilmiş yaşlı bir gemiyi andırıyordu. Bahçedeki asırlık manolya ağaçlarının dalları kırık pencerelerden içeri uzanmış, sarmaşıklar beyaz boyası dökülmüş cepheyi bir ağ gibi sarmıştı. Kerem, elindeki deri kaplı çizim defterini ve şerit metreyi çıkarıp verandalı girişe doğru yürüdü. Burası onun sadece iş sahası değil, kendi dağılmış zihnini toparlamak için tutunduğu son daldı.</p>
+      <p>İçeri adım attığında burnuna küf, ıslak ahşap ve eski kâğıt kokusu doldu. Salonun ortasında durup yüksek tavanlardaki alçı kabartmalara baktı. Bir zamanlar burada kahkahaların, kadeh seslerinin ve müziğin yankılandığını hayal etmek zor değildi. Ama şimdi her köşede derin çatlaklar, çökmüş döşemeler ve sessizlik vardı. Tıpkı kendi evliliği gibi... Aylarca süren sessiz bekleyişlerin, hastane koridorlarının ve kaybedilen o küçücük kalp atışının ardından karısıyla aralarında büyüyen o onarılmaz çatlaklar gibi.</p>
+      <p>Üst kata çıkan geniş ahşap merdivenleri gıcırtılar eşliğinde tırmandı. İkinci kattaki büyük odanın kapısını açtığında duraksadı. Burası köşkün eski kütüphanesi ve müzik odasıydı. Duvar boyunca uzanan ceviz kitaplıkların rafları nemden eğilmiş, yüzlerce ciltli kitap ve nota defteri yerlere saçılmıştı. Odanın köşesinde ise üzeri tozlu beyaz bir örtüyle kapatılmış büyük bir nesne duruyordu.</p>
+      <p>Kerem örtüyü yavaşça çektiğinde altından kuyruklu, maun ağacından yapılma eski bir piyano çıktı. Tuşlarının fildişi kaplamaları sararmış, kapağı çatlamıştı. Tam o sırada odanın kapısında hafif bir ayak sesi duyuldu.</p>
+      <p>"O piyano en son on beş yıl önce çalındı," dedi tanıdık, dingin bir ses.</p>
+      <p>Kerem arkasına döndüğünde kapı eşiğinde Defne’yi gördü. Üzerinde koyu yeşil bir yağmurluk, elinde ise Salih Usta’nın gönderdiği sıcak termos vardı. Sabah sisi saçlarının uçlarını nemlendirmişti.</p>
