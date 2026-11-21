@@ -1,12 +1,21 @@
-import IPython
-from google.colab import files
-
-# Kitabın temel ayarları ve boş bölüm listesi
-bolumler_listesi = []
-
-html_ust = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
+<meta charset="UTF-8">
+<title>Yarım Kalan Akort</title>
+<style>
+  body { background: #f4efe6; color: #2c2623; font-family: Georgia, serif; padding: 20px; display: flex; justify-content: center; }
+  .kitap { max-width: 750px; width: 100%; background: #fcf9f2; padding: 45px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); border-left: 10px solid #7a4938; }
+  h1 { text-align: center; color: #7a4938; }
+  .alt { text-align: center; font-style: italic; color: #666; margin-bottom: 30px; }
+  h2 { color: #7a4938; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+  p { line-height: 1.8; font-size: 18px; text-indent: 25px; text-align: justify; }
+  .nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; }
+  button { background: #7a4938; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+  button:disabled { background: #ccc; }
+</style>
+</head>
+
 <meta charset="UTF-8">
 <title>Yarım Kalan Akort</title>
 <style>
