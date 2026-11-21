@@ -1,0 +1,77 @@
+import IPython
+from google.colab import files
+
+# Kitabın temel ayarları ve boş bölüm listesi
+bolumler_listesi = []
+
+html_ust = """<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Yarım Kalan Akort</title>
+<style>
+  body { background: #f4efe6; color: #2c2623; font-family: Georgia, serif; padding: 20px; display: flex; justify-content: center; }
+  .kitap { max-width: 750px; width: 100%; background: #fcf9f2; padding: 50px; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 10px solid #7a4938; }
+  h1 { text-align: center; color: #7a4938; font-size: 2.5rem; margin-bottom: 5px; }
+  .alt { text-align: center; font-style: italic; color: #666; margin-bottom: 40px; }
+  h2 { color: #7a4938; border-bottom: 1px solid #ddd; padding-bottom: 8px; margin-top: 30px; }
+  p { line-height: 1.8; font-size: 18px; text-indent: 25px; text-align: justify; }
+  .nav { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; }
+  button { background: #7a4938; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; }
+  button:disabled { background: #ccc; }
+</style>
+</head>
+<body>
+<div class="kitap">
+  <h1>Yarım Kalan Akort</h1>
+  <div class="alt">Bir Büyükada Hikâyesi</div>
+  <div id="icerik"></div>
+  <div class="nav">
+    <button id="geri" onclick="degistir(-1)">← Önceki Bölüm</button>
+    <span id="sayac"></span>
+    <button id="ileri" onclick="degistir(1)">Sonraki Bölüm →</button>
+  </div>
+</div>
+<script>
+const sayfalar = [
+"""
+print("✅ 1. Parça (İskelet) hazırlandı!")
+bolum_1 = """
+{
+  baslik: "Bölüm 1: Yağmurun Getirdiği Yabancı",
+  metin: `
+    <p>Kasım ayı Büyükada’ya bir misafir gibi değil, evin eski ve huysuz sahibi gibi çökmüştü. İskeleden yukarı kıvrılan Arnavut kaldırımlı sokaklar, sabahın erken saatlerinden beri yağan ince ama inatçı yağmurla koyu bir kurşun rengine bürünmüştü.</p>
+    <p>Defne, sahaf dükkânının buğulanmış vitrin camının ardında, ceviz ağacından yapılma eski tezgâhın üzerine eğilmişti. Sağ eliyle ince uçlu fırçayı tutkal kabına daldırırken, sol elini her zamanki gibi kazağının uzun yeninin içine saklamıştı.</p>
+    <p>Dükkânın kapısındaki pirinç çıngırak tok bir sesle çaldı. İçeriye uzun boylu, omuzları yağmurdan koyulaşmış kaşe kabanlı bir adam girdi. Gözlerinin altında uykusuz gecelerin bıraktığı derin gölgeler vardı.</p>
+    <p>"Hoş geldiniz," dedi Defne, alçak ve dingin bir sesle. "Sadece yağmurdan kaçmak için girdiyseniz bile sobanın yanına geçebilirsiniz."</p>
+    <p>Kerem ıslak saçlarını geriye iterken duraksadı. "Bazen insan sadece sığınacak bir sessizlik arıyor," diye fısıldadı. Az sonra, Çankaya sırtlarındaki eski Hacıyan Köşkü'nün restorasyonu için adaya geldiğini söylediğinde, Defne'nin elindeki keten bez havada asılı kaldı. O köşk, Defne'nin çocukluğunda müziğe âşık olduğu yerdi.</p>
+  `
+},
+"""
+bolumler_listesi.append(bolum_1)
+print("✅ Bölüm 1 eklendi!")
+html_alt = """
+];
+let indeks = 0;
+function goster() {
+  document.getElementById("icerik").innerHTML = "<h2>" + sayfalar[indeks].baslik + "</h2>" + sayfalar[indeks].metin;
+  document.getElementById("sayac").innerText = (indeks + 1) + " / " + sayfalar.length;
+  document.getElementById("geri").disabled = (indeks === 0);
+  document.getElementById("ileri").disabled = (indeks === sayfalar.length - 1);
+}
+function degistir(yon) {
+  indeks += yon;
+  goster();
+}
+goster();
+</script>
+</body>
+</html>
+"""
+
+tam_html = html_ust + "".join(bolumler_listesi) + html_alt
+
+with open("Yarim_Kalan_Akort.html", "w", encoding="utf-8") as f:
+    f.write(tam_html)
+
+display(IPython.display.HTML(tam_html))
